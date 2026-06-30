@@ -1,0 +1,499 @@
+/* =====================================================
+   Instagram Landing Page — style.css
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Grand+Hotel&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-primary: 'Inter', sans-serif;
+  --font-logo: 'Grand Hotel', cursive;
+  --bg-color: #fafafa;
+  --card-bg: #ffffff;
+  --primary-blue: #0095f6;
+  --primary-blue-hover: #1877f2;
+  --primary-blue-disabled: rgba(0,149,246,.3);
+  --border-color: #dbdbdb;
+  --text-color-primary: #262626;
+  --text-color-secondary: #8e8e8e;
+  --link-color: #00376b;
+  --shadow-phone: 0 20px 40px rgba(0,0,0,.15);
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-color);
+  color: var(--text-color-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.main-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 935px;
+  padding: 20px;
+}
+
+.hero-mockups {
+  position: relative;
+  width: 454px;
+  height: 618px;
+}
+
+.phone-mockup {
+  position: absolute;
+  border-radius: 42px;
+  overflow: hidden;
+}
+
+.phone-mockup.bg-phone {
+  background: #121212;
+  border: 14px solid #1a1a1a;
+  width: 250px;
+  height: 520px;
+  top: 10px;
+  left: 30px;
+}
+
+.phone-mockup.fg-phone {
+  background: #f7f7f7;
+  border: 13px solid #e2e2e2;
+  width: 260px;
+  height: 540px;
+  top: 40px;
+  left: 190px;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-card,
+.signup-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 20px 40px 28px;
+  text-align: center;
+}
+
+.signup-card {
+  padding: 16px 24px;
+  font-size: 14px;
+}
+
+.brand-header {
+  margin: 12px 0 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.brand-name {
+  font-family: var(--font-logo);
+  font-size: 44px;
+  color: black;
+  font-weight: 400;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.input-group {
+  position: relative;
+  width: 100%;
+}
+
+.input-group input {
+  width: 100%;
+  height: 44px;
+  padding: 0 36px 0 10px;
+  font-size: 14px;
+  background: #fafafa;
+  border: 1px solid #dbdbdb;
+  border-radius: 5px;
+  outline: none;
+  color: #262626;
+}
+
+.input-group input::placeholder {
+  color: #aaaaaa;
+  font-size: 13px;
+}
+
+.input-group input:focus {
+  border-color: #a8a8a8;
+  background: white;
+}
+
+.btn-login {
+  margin-top: 8px;
+  width: 100%;
+  height: 40px;
+  background: #b2dffc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-login:not(:disabled):hover {
+  background: #5ba4d4;
+}
+
+.btn-login:not(:disabled) {
+  background: #4cb5f9;
+}
+
+.forgot-password {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #385185;
+  text-decoration: none;
+}
+.or-divider {
+  display: flex;
+  align-items: center;
+  margin: 18px 0 14px;
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  background: #dbdbdb;
+}
+
+.or-divider span {
+  padding: 0 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8e8e8e;
+}
+
+.alt-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #00376b;
+  text-decoration: none;
+}
+
+.signup-card a {
+  color: #385185;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.download-section {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.download-section p {
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.badges-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.badge-btn {
+  background: #000;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: white;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 130px;
+  height: 46px;
+}
+
+.badge-btn svg {
+  flex-shrink: 0;
+  fill: white;
+}
+
+.badge-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.badge-text .subtitle {
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.badge-text .title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.site-footer {
+  width: 100%;
+  max-width: 935px;
+  margin: 28px auto 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 10px;
+}
+
+.footer-links a {
+  font-size: 12px;
+  color: #8e8e8e;
+  text-decoration: none;
+}
+
+.footer-bottom {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #8e8e8e;
+}
+
+.footer-lang {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+/* =========================
+   BUTTON TOGGLE (show/hide)
+========================= */
+.btn-toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #262626;
+  cursor: pointer;
+  padding: 0;
+  display: none;
+}
+
+/* =========================
+   MOBILE VIEW
+========================= */
+@media (max-width: 875px) {
+  body {
+    background: #f2f2f2;
+    display: block;
+  }
+
+  .hero-mockups {
+    display: none !important;
+  }
+
+  .main-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    padding: 0;
+    align-items: flex-start;
+  }
+
+  .main-content {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+  }
+
+  .auth-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 20px;
+    margin: 0;
+    gap: 0;
+  }
+
+  .login-card {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none;
+    padding: 0;
+    margin-top: 12px;
+  }
+
+  .brand-header {
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+
+  .brand-name {
+    font-size: 52px;
+  }
+
+  .auth-form {
+    gap: 8px;
+  }
+
+  .input-group {
+    margin-bottom: 4px;
+  }
+
+  .input-group input {
+    width: 100%;
+    height: 44px;
+    padding: 0 40px 0 12px;
+    border: 1px solid #dbdbdb;
+    border-radius: 5px;
+    background: #fafafa;
+    font-size: 14px;
+  }
+
+  .btn-login {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    background: #b2dffc;
+    color: white;
+  }
+
+  .btn-login:not(:disabled) {
+    background: #4cb5f9;
+  }
+
+  .or-divider,
+  .alt-login {
+    display: none;
+  }
+
+  .forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    font-size: 13px;
+    color: #385185;
+  }
+
+  .signup-card {
+    border: none !important;
+    background: transparent !important;
+    text-align: center;
+    margin-top: 120px;
+    padding: 14px 0;
+    font-size: 14px;
+    color: #262626;
+  }
+
+  .download-section {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .download-section p {
+    font-size: 14px;
+    color: #262626;
+    margin-bottom: 14px;
+  }
+
+  .badges-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .badge-btn {
+    min-width: 120px;
+    height: 44px;
+    padding: 7px 12px;
+    gap: 8px;
+  }
+
+  .badge-text .subtitle {
+    font-size: 9px;
+  }
+
+  .badge-text .title {
+    font-size: 14px;
+  }
+
+  .site-footer {
+    display: flex;
+    margin: 30px auto 50px;
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .footer-links {
+    gap: 10px 8px;
+  }
+
+  .footer-links a {
+    font-size: 12px;
+    color: #8e8e8e;
+  }
+
+  .footer-bottom {
+    font-size: 12px;
+    color: #8e8e8e;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+}
